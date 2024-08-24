@@ -84,57 +84,77 @@ export default function Auth() {
           </Stack>
         ) : (
           <Stack direction="column" spacing={2}>
-            <TextField
-              type="email"
-              label="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              fullWidth
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: '#1E88E5',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#1565C0',
-                  },
-                },
-              }}
-            />
-            <TextField
-              type="password"
-              label="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              fullWidth
-              sx={{
-                '& .MuiOutlinedInput-root': {
-                  '& fieldset': {
-                    borderColor: '#1E88E5',
-                  },
-                  '&.Mui-focused fieldset': {
-                    borderColor: '#1565C0',
-                  },
-                },
-              }}
-            />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleSignUp}
-              sx={{ bgcolor: '#1E88E5', color: 'white' }}
-            >
-              Sign Up
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleLogIn}
-              sx={{ bgcolor: '#1E88E5', color: 'white' }}
-            >
-              Log In
-            </Button>
-          </Stack>
+  <Typography
+    variant="h4"
+    align="center"
+    sx={{ color: '#3949AB', fontWeight: 'bold' }}
+  >
+    Welcome to Ebot!
+  </Typography>
+  <Typography variant="body1" align="center" sx={{ color: '#1E88E5' }}>
+    Sign Up to get started or Login if you've already signed up.
+  </Typography>
+  <TextField
+    type="email"
+    label="Email"
+    value={email}
+    onChange={(e) => setEmail(e.target.value)}
+    fullWidth
+    sx={{
+      '& .MuiOutlinedInput-root': {
+        '& fieldset': {
+          borderColor: '#1E88E5',
+        },
+        '&.Mui-focused fieldset': {
+          borderColor: '#1565C0',
+        },
+      },
+    }}
+  />
+  <TextField
+    type="password"
+    label="Password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    fullWidth
+    sx={{
+      '& .MuiOutlinedInput-root': {
+        '& fieldset': {
+          borderColor: '#1E88E5',
+        },
+        '&.Mui-focused fieldset': {
+          borderColor: '#1565C0',
+        },
+      },
+    }}
+  />
+  <Button
+    variant="contained"
+    sx={{
+      bgcolor: '#3949AB',
+      color: 'white',
+      '&:hover': {
+        bgcolor: '#303F9F',
+      },
+    }}
+    onClick={handleSignUp}
+  >
+    Sign Up
+  </Button>
+  <Button
+    variant="contained"
+    sx={{
+      bgcolor: '#1E88E5',
+      color: 'white',
+      '&:hover': {
+        bgcolor: '#1565C0',
+      },
+    }}
+    onClick={handleLogIn}
+  >
+    Log In
+  </Button>
+</Stack>
         )}
       </Stack>
     </Box>
