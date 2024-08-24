@@ -19,7 +19,7 @@ export default function Home() {
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
-      content: "Hi! I'm Ed's support assistant. How can I help you today?",
+      content: "Hi! I'm Ebot. How can I help you today?",
     },
   ]);
   const [message, setMessage] = useState('');
@@ -179,7 +179,8 @@ export default function Home() {
                 color={message.role === 'assistant' ? '#0D47A1' : 'white'} 
                 borderRadius={16}
                 p={4} 
-                fontSize="1rem" 
+                fontSize="1rem"
+                lineHeight={2} 
                 sx={{ whiteSpace: 'pre-wrap' }} 
               >
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
