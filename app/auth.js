@@ -60,7 +60,7 @@ export default function Auth() {
     >
       <Stack
         direction="column"
-        width="400px"
+        width={{ xs: '90%', sm: '80%', md: '70%', lg: '50%' }} // Responsive width
         p={4}
         spacing={3}
         sx={{

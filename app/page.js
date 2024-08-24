@@ -1,17 +1,16 @@
 'use client'
 
-import { Box, Button, Stack, TextField } from '@mui/material'
+import { Box, Button, Stack, TextField, Typography } from '@mui/material'
 import { useState } from 'react'
 import { useAuthState } from "react-firebase-hooks/auth";
-import { auth, db } from '../firebase'; // Firebase configuration file
+import { auth, db } from '../firebase';
 import { useTranslation } from 'next-i18next';
 import { addDoc, collection } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 import i18next from 'i18next';
-import Auth from "./auth"; // Ensure to import your auth component
+import Auth from "./auth";
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-
 
 export default function Home() {
   const [user, loading, error] = useAuthState(auth);
@@ -149,8 +148,9 @@ export default function Home() {
     >
       <Stack
         direction={'column'}
-        width="700px"
-        height="800px"
+        width={{ xs: '90%', sm: '80%', md: '70%', lg: '50%' }} // Responsive width
+        height="auto"
+        maxHeight="90vh" // Adjust height for better responsiveness
         border="1px"
         p={4}
         spacing={3}
@@ -158,13 +158,17 @@ export default function Home() {
           backdropFilter: 'blur(10px)', 
           backgroundColor: 'rgba(255, 255, 255, 0.5)', 
           borderRadius: '8px',
+          overflow: 'auto', // Enable scrolling if content exceeds the height
         }}
       >
+        <Typography variant="h4" align="center" gutterBottom sx={{ fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' } }}>
+          Welcome to Ebot!
+        </Typography>
+
         <Stack
           direction={'column'}
           spacing={2}
           flexGrow={1}
-          overflow="auto"
           maxHeight="100%"
         >
           {messages.map((message, index) => (
@@ -178,10 +182,10 @@ export default function Home() {
                 bgcolor={message.role === 'assistant' ? '#E3F2FD' : '#3949AB'} 
                 color={message.role === 'assistant' ? '#0D47A1' : 'white'} 
                 borderRadius={16}
-                p={4} 
+                p={2} 
                 fontSize="1rem"
                 lineHeight={2} 
-                sx={{ whiteSpace: 'pre-wrap' }} 
+                sx={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }} 
               >
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>
                   {message.content}
@@ -224,12 +228,13 @@ export default function Home() {
             sx={{
               bgcolor: '#1E88E5',
               color: 'white',
+              width: { xs: '100px', sm: '150px' } // Responsive button width
             }}
           >
             {isLoading ? 'Sending...' : 'Send'}
           </Button>
         </Stack>
-        <Stack direction={'row'} justifyContent="space-between">
+        <Stack direction={'row'} justifyContent="space-between" mt={2}>
           <Button onClick={handleLogout} sx={{ bgcolor: '#f44336', color: 'white' }}>
             Logout
           </Button>
