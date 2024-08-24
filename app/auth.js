@@ -92,7 +92,7 @@ export default function Auth() {
     Welcome to Ebot!
   </Typography>
   <Typography variant="body1" align="center" sx={{ color: '#1E88E5' }}>
-    Sign Up to get started or Login if you've already signed up.
+    Sign Up to get started or Login if you&apos;ve already signed up.
   </Typography>
   <TextField
     type="email"
@@ -155,6 +155,7 @@ export default function Auth() {
     Log In
   </Button>
 </Stack>
+
         )}
       </Stack>
     </Box>
