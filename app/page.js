@@ -9,7 +9,9 @@ import { addDoc, collection } from "firebase/firestore";
 import { signOut } from "firebase/auth";
 import i18next from 'i18next';
 import Auth from "./auth"; // Ensure to import your auth component
-import backgroundImage from "../public/images/background.jpg";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+
 
 export default function Home() {
   const [user, loading, error] = useAuthState(auth);
@@ -147,8 +149,8 @@ export default function Home() {
     >
       <Stack
         direction={'column'}
-        width="500px"
-        height="700px"
+        width="700px"
+        height="800px"
         border="1px"
         p={4}
         spacing={3}
@@ -178,9 +180,11 @@ export default function Home() {
                 borderRadius={16}
                 p={4} 
                 fontSize="1rem" 
-                lineHeight="2" 
+                sx={{ whiteSpace: 'pre-wrap' }} 
               >
-                {message.content}
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {message.content}
+                </ReactMarkdown>
               </Box>
               {message.role === 'assistant' && (
                 <Box mt={1}>
