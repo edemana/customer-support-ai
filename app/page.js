@@ -2,18 +2,38 @@
 
 import { Box, Button, Stack, TextField } from '@mui/material'
 import { useState } from 'react'
-import { useSession } from "next-auth/react"
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth, db } from '../firebase'; // Firebase configuration file
+import { useTranslation } from 'next-i18next';
+import { addDoc, collection } from "firebase/firestore";
+import { signOut } from "firebase/auth";
+import i18next from 'i18next';
+import Auth from "./auth"; // Ensure to import your auth component
+import backgroundImage from "../public/images/background.jpg";
 
 export default function Home() {
-  const { data: session } = useSession()
+  const [user, loading, error] = useAuthState(auth);
+  const { t } = useTranslation('common');
   const [messages, setMessages] = useState([
     {
       role: 'assistant',
       content: "Hi! I'm Ed's support assistant. How can I help you today?",
     },
-  ])
-  const [message, setMessage] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  ]);
+  const [message, setMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error.message}</div>;
+  }
+
+  if (!user) {
+    return <Auth />;
+  }
 
   const sendMessage = async () => {
     if (!message.trim() || isLoading) return;
@@ -25,7 +45,7 @@ export default function Home() {
       { role: 'user', content: message },
       { role: 'assistant', content: '' },
     ])
-  
+
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
@@ -34,14 +54,14 @@ export default function Home() {
         },
         body: JSON.stringify([...messages, { role: 'user', content: message }]),
       })
-  
+
       if (!response.ok) {
         throw new Error('Network response was not ok')
       }
-  
+
       const reader = response.body.getReader()
       const decoder = new TextDecoder()
-  
+
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
@@ -74,22 +94,42 @@ export default function Home() {
   }
 
   const sendFeedback = async (messageId, rating) => {
-    const response = await fetch('/api/feedback', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ messageId, rating }),
-    });
-
-    if (!response.ok) {
-      console.error('Failed to send feedback');
+    try {
+      await addDoc(collection(db, "feedback"), {
+        messageId,
+        rating,
+        userId: user.uid,
+        createdAt: new Date(),
+      });
+      console.log('Feedback submitted successfully');
+    } catch (error) {
+      console.error('Failed to send feedback:', error);
     }
   };
 
-  if (!session) {
-    return <div>Please sign in to use the chat.</div>
-  }
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      console.log('User signed out');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
+  const downloadChat = () => {
+    const chatContent = messages.map(msg => `${msg.role}: ${msg.content}`).join('\n\n');
+    const blob = new Blob([chatContent], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `chat-${new Date().toISOString()}.txt`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleLanguageChange = (lang) => {
+    i18next.changeLanguage(lang);
+  };
 
   return (
     <Box
@@ -99,15 +139,24 @@ export default function Home() {
       flexDirection="column"
       justifyContent="center"
       alignItems="center"
-      bgcolor="#000000"
+      sx={{
+        backgroundImage: `url('/images/background.jpg')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+      }}
     >
       <Stack
         direction={'column'}
         width="500px"
         height="700px"
-        border="1px solid #333"
-        p={2}
+        border="1px"
+        p={4}
         spacing={3}
+        sx={{
+          backdropFilter: 'blur(10px)', 
+          backgroundColor: 'rgba(255, 255, 255, 0.5)', 
+          borderRadius: '8px',
+        }}
       >
         <Stack
           direction={'column'}
@@ -124,10 +173,12 @@ export default function Home() {
               alignItems={message.role === 'assistant' ? 'flex-start' : 'flex-end'}
             >
               <Box
-                bgcolor={message.role === 'assistant' ? '#1E88E5' : '#3949AB'}
-                color="white"
+                bgcolor={message.role === 'assistant' ? '#E3F2FD' : '#3949AB'} 
+                color={message.role === 'assistant' ? '#0D47A1' : 'white'} 
                 borderRadius={16}
-                p={3}
+                p={4} 
+                fontSize="1rem" 
+                lineHeight="2" 
               >
                 {message.content}
               </Box>
@@ -149,14 +200,11 @@ export default function Home() {
             onKeyPress={handleKeyPress}
             disabled={isLoading}
             sx={{
-              bgcolor: '#ffffff',
+              bgcolor: '#ffff',
               borderRadius: '8px',
               '& .MuiOutlinedInput-root': {
                 '& fieldset': {
                   borderColor: '#1E88E5',
-                },
-                '&:hover fieldset': {
-                  borderColor: '#1565C0',
                 },
                 '&.Mui-focused fieldset': {
                   borderColor: '#1565C0',
@@ -171,12 +219,17 @@ export default function Home() {
             sx={{
               bgcolor: '#1E88E5',
               color: 'white',
-              '&:hover': {
-                bgcolor: '#1565C0',
-              },
             }}
           >
             {isLoading ? 'Sending...' : 'Send'}
+          </Button>
+        </Stack>
+        <Stack direction={'row'} justifyContent="space-between">
+          <Button onClick={handleLogout} sx={{ bgcolor: '#f44336', color: 'white' }}>
+            Logout
+          </Button>
+          <Button onClick={downloadChat} sx={{ bgcolor: '#4caf50', color: 'white' }}>
+            Download Chat
           </Button>
         </Stack>
       </Stack>

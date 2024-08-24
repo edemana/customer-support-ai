@@ -1,37 +1,35 @@
 // app/api/feedback/route.js
 
 import { NextResponse } from 'next/server';
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "../auth/[...nextauth]/route";
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { getAuth } from 'firebase-admin/auth';
+import { db } from '../../../firebase'; // Update the path according to your structure
+import { collection, addDoc } from "firebase/firestore"; 
 
 export async function POST(req) {
-  const session = await getServerSession(authOptions);
-  if (!session) {
+  const token = req.headers.authorization?.split('Bearer ')[1];
+  if (!token) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
+    const decodedToken = await getAuth().verifyIdToken(token);
+    const userId = decodedToken.uid;
+
     const { messageId, rating } = await req.json();
 
-    // Store the feedback in the database
-    const feedback = await prisma.feedback.create({
-      data: {
-        messageId,
-        rating,
-        userId: session.user.id, // Assuming the session contains user id
-      },
+    // Store the feedback in Firestore
+    const feedbackRef = await addDoc(collection(db, "feedback"), {
+      messageId,
+      rating,
+      userId,
+      createdAt: new Date(),
     });
 
-    console.log(`Feedback stored: ${JSON.stringify(feedback)}`);
+    console.log(`Feedback stored: ${feedbackRef.id}`);
 
-    return NextResponse.json({ success: true, feedbackId: feedback.id });
+    return NextResponse.json({ success: true, feedbackId: feedbackRef.id });
   } catch (error) {
     console.error("Error storing feedback:", error);
     return NextResponse.json({ error: "Failed to store feedback" }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
   }
 }
